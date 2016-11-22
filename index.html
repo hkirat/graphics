@@ -1,0 +1,65 @@
+<script src = "./p5.js">
+</script>
+<script>
+function setup(){
+  createCanvas(600, 600, WEBGL);
+}
+
+var WIDTH = 600;
+var HEIGHT = 600;
+var GRAVITY = 9.8;
+var ball1 = new Ball(30, .9, 9.8); 
+
+function draw(){
+  	background(200);
+  	ball1.update();
+  	ball1.translate();
+  	ball1.render();
+  	ball1.antiTranslate();
+}
+
+function Ball(radius,e, gravity ) {
+	this.r = radius;
+	this.e = e;
+	this.g = gravity || GRAVITY;
+	this.x = 0;
+	this.y = 0;
+	this.v = 0;
+	this.prevTime = -1;
+	this.collided = false;
+}
+
+Ball.prototype.translate = function() {
+	translate(this.x, this.y);
+}
+
+Ball.prototype.antiTranslate = function() {
+	translate(-1 * this.x, -1 * this.y)
+}
+
+Ball.prototype.render = function() {
+	sphere(this.r);
+}
+
+Ball.prototype.update = function() {
+	if(this.prevTime == -1) {
+
+	} else {
+		this.v += (this.g * (Date.now() - this.prevTime))/100;
+		this.y += (this.v * (Date.now() - this.prevTime))/100;
+	}
+	if(this.y + this.r > HEIGHT/2 && !this.collided) {
+		this.v = this.e * this.v * -1;
+		this.y = HEIGHT/2 - this.r - 3 ;
+		this.collided = true;
+		console.log(this.v);
+		if(Math.abs(this.v)<10) {
+			this.v = 0;
+			this.g = 0;
+		}
+	} else {
+		this.collided = false;
+	}
+	this.prevTime = Date.now();
+}
+</script>
