@@ -1,18 +1,38 @@
 <script src = "./p5.js">
 </script>
+<script src = "./addons/p5.dom.js">
+</script>
 <script>
 
-var WIDTH = 800;
+var WIDTH = 1200;
 var HEIGHT = 600;
 var DEPTH = 900;
 var GRAVITY = 9.8;
 function setup(){
   createCanvas(WIDTH, HEIGHT, WEBGL);
+  slider = createSlider(-50, 50, 10);
+  slider.position(50, 10);
+  slider.style('width', '80px');
+  slider2 = createSlider(-50, 50, 0);
+  slider2.position(50, 30);
+  slider2.style('width', '80px');
+  slider3 = createSlider(0, 100, 90);
+  slider3.position(50, 50);
+  slider3.style('width', '80px');
+  slider4 = createSlider(0, 100, 90);
+  slider4.position(50, 70);
+  slider4.style('width', '80px');
 }
+
 var ball1 = new Ball(30, .9, 9.8); 
 
-function draw(){
+function draw() {
   	background(200);
+  	console.log(slider.value());
+  	ball1.g = slider.value();
+  	ball1.gx = slider2.value();
+  	ball1.e = slider3.value()/100;
+  	ball1.ex = slider4.value()/100;
   	ball1.updateY();
   	ball1.updateZ();
   	ball1.updateX();
@@ -24,21 +44,22 @@ function draw(){
 function Ball(radius, e, gravity) {
 	this.r = radius;
 	this.e = e;
-	this.ex = 1.1;
+	this.ex = .9;
 	this.ez = e;
 	this.g = gravity || GRAVITY;
-	this.x = 0;
+	this.x = -WIDTH/2 + radius * 2;
 	this.y = 0;
 	this.z = 0;
-	this.vx = 0;
-	this.gx = gravity||GRAVITY;
+	this.vx = 50;
+	this.gx = 0;
 	this.vz = 0;
-	this.gz  = -1 * (gravity||GRAVITY);
-	this.v = 0;
+	this.gz  = 0;
+	this.v = 100;
 	this.prevTime = -1;
 	this.prevTime2 = -1;
 	this.prevTime3 = -1;
 	this.collided = false;
+	this.fric = .8;
 }
 
 Ball.prototype.translate = function() {
@@ -68,6 +89,18 @@ Ball.prototype.updateY = function() {
 			this.v = 0;
 			this.g = 0;
 		}
+		this.vx = this.fric * this.vx;
+		this.vz = this.fric * this.vz;
+	} else if(this.y - this.r < -1 * HEIGHT/2 && !this.collided) {
+		this.v = this.e * this.v * -1;
+		this.y = -1 * HEIGHT/2 + this.r - 3 ;
+		this.collided = true;
+		if(Math.abs(this.v)<10) {
+			this.v = 0;
+			this.g = 0;
+		}
+		this.vx = this.fric * this.vx;
+		this.vz = this.fric * this.vz;
 	} else {
 		this.collided = false;
 	}
@@ -89,6 +122,20 @@ Ball.prototype.updateX = function() {
 			this.vx = 0;
 			this.gx = 0;
 		}
+
+		this.v = this.fric * this.v;
+		this.vz = this.fric * this.vz;
+	} else if(this.x - this.r <=-1 * WIDTH/2 && !this.collided) {
+		this.vx = this.ex * this.vx * -1;
+		this.x = -1 * WIDTH/2 + this.r + 3 ;
+		this.collided = true;
+		if(Math.abs(this.vx)<10) {
+			this.vx = 0;
+			this.gx = 0;
+		}
+
+		this.v = this.fric * this.v;
+		this.vy = this.fric * this.vy;
 	} else {
 		this.collided = false;
 	}
@@ -112,6 +159,8 @@ Ball.prototype.updateZ = function() {
 			this.vz = 0;
 			this.gz = 0;
 		}
+		this.vx = this.fric * this.vx;
+		this.v = this.fric * this.v;
 	} else {
 		this.collided = false;
 	}
